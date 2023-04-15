@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Регистрация нового участника</title>
+  </head>
+  <body>
+    <h1>Регистрация нового участника</h1>
+    <form>
+      <label for="name">ФИО:</label>
+      <input type="text" id="name" name="name"><br><br>
+      <label for="company">Компания:</label>
+      <input type="text" id="company" name="company"><br><br>
+      <label for="participantPrice">Стоимость 1 минуты (участника):</label>
+      <input type="number" id="participantPrice" name="participantPrice"><br><br>
+      <button id="addParticipant">Добавить участника</button><br><br>
+      <label for="meeting">Совещание:</label>
+      <input type="text" id="meeting" name="meeting"><br><br>
+      <button id="startMeeting">Начать совещание</button>
+      <button id="endMeeting">Завершить совещание</button>
+    </form>
+
+    <div id="timer">00:00:00</div>
+    <div id="cost">Стоимость времени: 0 руб.</div>
+    <div id="participants">
+      <h2>Участники:</h2>
+      <ul id="participantsList"></ul>
+    </div>
+
+    <script>
+      const form = document.querySelector('form');
+      const addParticipantBtn = document.getElementById('addParticipant');
+      const startMeetingBtn = document.getElementById('startMeeting');
+      const endMeetingBtn = document.getElementById('endMeeting');
+      const participantsList = document.getElementById('participantsList');
+      let startTime, endTime;
+
+      addParticipantBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+
+        const nameInput = document.getElementById('name');
+        const companyInput = document.getElementById('company');
+        const participantPriceInput = document.getElementById('participantPrice');
+
+        if (!nameInput.value || !companyInput.value || !participantPriceInput.value) {
+          alert('Пожалуйста, заполните поля ФИО, Компания и Стоимость 1 минуты');
+          return;
+        }
+
+        const listItem = document.createElement('li');
+        listItem.textContent = `${nameInput.value} (${companyInput.value}) - ${participantPriceInput.value} руб./мин`;
+        listItem.dataset.pricePerMinute = participantPriceInput.value;
+        participantsList.appendChild(listItem);
+
+        // Очистить поля ввода
+        nameInput.value = '';
+        companyInput.value = '';
+        participantPriceInput.value = '';
+      });
+
+      startMeetingBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+
+        // Выводим сообщение о начале совещания
+        alert('Совещание началось');
+
+        // Фиксируем время начала совещания
+        startTime = new Date();
+
+        // Включаем секундомер
+        timerInterval = setInterval(updateTimer, 1000);
+
+        // Делаем кнопку "Завершить совещание" доступной
+        endMeetingBtn.disabled = false;
+      });
+
+      endMeetingBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+
+        // Фиксируем время окончания совещания
+endTime = new Date();
+    // Останавливаем секундомер
+    clearInterval(timerInterval);
+
+    // Делаем кнопку "Завершить совещание" недоступной
+    endMeetingBtn.disabled = true;
+
+    // Вычисляем стоимость времени на основе данных об участниках
+    const totalMinutes = (endTime - startTime) / 1000 / 60;
+    let totalCost = 0;
+    for (const participant of participantsList.children) {
+      const participantPricePerMinute = parseInt(participant.dataset.pricePerMinute, 10);
+      totalCost += participantPricePerMinute * totalMinutes;
+    }
+    totalCost = Math.round(totalCost);
+
+    const costElement = document.getElementById('cost');
+    costElement.textContent = `Стоимость времени: ${totalCost} руб.`;
+    
+    // Отображаем всплывающее окно с сообщением о стоимости совещания
+    alert(`Совещание завершено. Цена вопроса: ${totalCost} руб.`);
+  });
+
+  let timerInterval;
+
+  function updateTimer() {
+    const currentTime = new Date();
+    const timeDiff = currentTime - startTime;
+    const seconds = Math.floor((timeDiff / 1000) % 60);
+    const minutes = Math.floor((timeDiff / 1000 / 60) % 60);
+    const hours = Math.floor((timeDiff / 1000 / 60 / 60) % 24);
+    const timerElement = document.getElementById('timer');
+    const costElement = document.getElementById('cost');
+    const totalMinutes = timeDiff / 1000 / 60;
+
+    let totalCost = 0;
+    for (const participant of participantsList.children) {
+      const participantPricePerMinute = parseInt(participant.dataset.pricePerMinute, 10);
+      totalCost += participantPricePerMinute * totalMinutes;
+    }
+
+    totalCost = Math.round(totalCost);
+
+    timerElement.textContent = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    costElement.textContent = `Стоимость времени: ${totalCost} руб.`;
+  }
+
+</script>
+</body>
+</html>
+```
